@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:all": "concurrently \"pnpm --filter user-service dev\" \"pnpm --filter api-gateway dev\"",
+    "build:shared": "pnpm --filter @shared/types... build && pnpm --filter @shared/database... build && pnpm --filter @shared/utils... build"
   },
   "keywords": [],
   "author": "",
@@ -12,5 +14,8 @@
   "packageManager": "pnpm@10.11.0",
   "dependencies": {
     "dotenv": "^16.5.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   }
 }

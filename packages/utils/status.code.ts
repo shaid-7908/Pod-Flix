@@ -20,4 +20,4 @@ const STATUS_CODES = {
   SERVICE_UNAVAILABLE: 503,
 };
 
-export default STATUS_CODES;
+export  {STATUS_CODES};

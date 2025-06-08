@@ -1,5 +1,5 @@
 {
-  "name": "user-service",
+  "name": "upload-service",
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
@@ -11,7 +11,7 @@
     "@shared/database": "workspace:*",
     "@shared/types": "workspace:*",
     "@shared/utils": "workspace:*",
-    "@shared/redis":"workspace:*",
+    "@shared/redis": "workspace:*",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "express": "^5.1.0",

@@ -6,22 +6,14 @@ const PORT = 3000;
 
 // Proxy setup
 app.use(
-  "/auth",
-  createProxyMiddleware({
-    target: "http://localhost:4001",
-    changeOrigin: true,
-    pathRewrite: { "^/auth": "" },
-  })
-);
-
-app.use(
   "/user",
   createProxyMiddleware({
-    target: "http://localhost:4002",
+    target: "http://localhost:4001",
     changeOrigin: true,
     pathRewrite: { "^/user": "" },
   })
 );
+
 
 app.use(
   "/video",
