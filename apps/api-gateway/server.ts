@@ -18,7 +18,7 @@ app.use(
 app.use(
   "/video",
   createProxyMiddleware({
-    target: "http://localhost:4003",
+    target: "http://localhost:4002",
     changeOrigin: true,
     pathRewrite: { "^/video": "" },
   })
