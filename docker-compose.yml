@@ -9,5 +9,18 @@ services:
     volumes:
       - redis-data:/data
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-server
+    ports:
+      - "5672:5672"     # RabbitMQ message broker port
+      - "15672:15672"   # RabbitMQ management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
 volumes:
   redis-data:
+  rabbitmq-data:

@@ -1,0 +1,19 @@
+{
+    "name": "broker-service",
+    "version": "1.0.0",
+    "main": "dist/index.js",
+    "scripts": {
+        "build": "tsc",
+        "start": "node dist/server.js",
+        "dev": "ts-node-dev --poll --respawn --transpile-only  broker-server.ts"
+    },
+    "dependencies": {
+        "@aws-sdk/client-sqs": "^3.826.0",
+        "express": "^5.1.0"
+    },
+    "devDependencies": {
+        "@types/express": "^5.0.2",
+        "ts-node-dev": "^2.0.0",
+        "typescript": "^5.8.3"
+    }
+}

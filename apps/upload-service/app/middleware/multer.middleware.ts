@@ -4,6 +4,8 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { Request, Response, NextFunction } from "express";
 import envConfig from "../config/env.config";
 
+import {v4 as uuid} from 'uuid'
+
 // Configure AWS S3 client (v3)
 const s3 = new S3Client({
   region: envConfig.AWS_REGION!,
@@ -39,20 +41,22 @@ const uploadVideoToS3 = async (
     }
 
     const fileBuffer = req.file.buffer;
-    const fileKey = `videos/${Date.now()}_${req.file.originalname}`;
+    const extention = req.file.mimetype.split('/')[1]
+    const uniquefilename = `${uuid()}.${extention}`
+    const fileKey = `videos/${uniquefilename}`;
 
     const uploadParams = {
       Bucket: envConfig.AWS_S3_BUCKET_NAME!,
       Key: fileKey,
       Body: fileBuffer,
       ContentType: req.file.mimetype,
+      
     };
 
     await s3.send(new PutObjectCommand(uploadParams));
 
     // Attach public S3 URL to req.body
     req.body.videoUrl = `https://${envConfig.AWS_S3_BUCKET_NAME}.s3.${envConfig.AWS_REGION}.amazonaws.com/${fileKey}`;
-
     next(); // Pass to next middleware/controller
   } catch (error) {
     console.error("S3 Upload Error:", error);

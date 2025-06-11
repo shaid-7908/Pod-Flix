@@ -24,6 +24,15 @@ app.use(
   })
 );
 
+app.use(
+  "/broker",
+  createProxyMiddleware({
+    target: "http://localhost:4003",
+    changeOrigin: true,
+    pathRewrite: { "^/broker": "" },
+  })
+);
+
 app.listen(PORT, () => {
   console.log(`API Gateway running at http://localhost:${PORT}`);
 });
