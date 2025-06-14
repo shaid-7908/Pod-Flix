@@ -1,13 +1,13 @@
-import envConfig from "./config";
-import express from 'express'
 import {
   SQSClient,
   ReceiveMessageCommand,
   DeleteMessageCommand,
   QueueAttributeName,
 } from "@aws-sdk/client-sqs";
+import { publishToVideoQueue, connectRabbitMQ } from "@shared/rabbitmq";
+import envConfig from "./config";
 
-
+// Initialize SQS Client
 const sqsClient = new SQSClient({
   region: envConfig.AWS_REGION,
   credentials: {
@@ -16,52 +16,85 @@ const sqsClient = new SQSClient({
   },
 });
 
+// Polling function
+const pollSQS = async () => {
+  console.log('pollig here')
+  const params = {
+    QueueUrl: envConfig.AWS_SQS_QUEUE_URL!,
+    MaxNumberOfMessages: 1,
+    WaitTimeSeconds: 20,
+    AttributeNames: [QueueAttributeName.All],
+    MessageAttributeNames: ["All"],
+  };
 
-const app = express()
-app.use(express.json())
-
-app.get('/',async (req,res)=>{
-    const params = {
-      QueueUrl: envConfig.AWS_SQS_QUEUE_URL!,
-      MaxNumberOfMessages: 1,
-      WaitTimeSeconds: 20,
-      AttributeNames: [QueueAttributeName.All],
-      MessageAttributeNames: ["All"],
-    };
-   try{
+  try {
     const command = new ReceiveMessageCommand(params);
     const data = await sqsClient.send(command);
-    if(data.Messages && data.Messages.length > 0){
-      if(data.Messages[0].Body){
-        const message = JSON.parse(data.Messages[0].Body);
-        res.status(200).json(message);
+    console.log('try to get message')
+    if (data.Messages && data.Messages.length > 0) {
+      console.log('got message')
+      const message = data.Messages[0];
+      console.log("📥 Message received from SQS");
+
+      if (message.Body) {
+        const parsed = JSON.parse(message.Body);
+        const s3Record = parsed.Records?.[0]?.s3;
+
+        if (s3Record) {
+          const dataToSend = {
+            "bucket-name": s3Record.bucket.name,
+            "object-key": s3Record.object.key,
+            "object-size": s3Record.object.size,
+          };
+
+          await publishToVideoQueue(dataToSend);
+          console.log("📤 Published to RabbitMQ:", dataToSend);
+
+          // Delete message from SQS
+          if (message.ReceiptHandle) {
+            const deleteCommand = new DeleteMessageCommand({
+              QueueUrl: envConfig.AWS_SQS_QUEUE_URL!,
+              ReceiptHandle: message.ReceiptHandle,
+            });
+            await sqsClient.send(deleteCommand);
+            console.log("✅ Deleted message from SQS");
+          }
+        }
       }
-      
-    }else{
-
-      res.status(200).json(data)
+    } else {
+      console.log("ℹ️ No messages in SQS at the moment.");
     }
+  } catch (err) {
+    console.error("❌ Error polling SQS:", err);
+  }
+};
 
-   }catch(err){
-    console.log(err)
-    res.status(500).json(err)
-   }
-})
+//for safe polling
+let isPolling = false;
 
+const safePollSQS = async () => {
+  if (isPolling) return;
+  isPolling = true;
+  try {
+    await pollSQS();
+  } finally {
+    isPolling = false;
+  }
+};
 
+// Server start logic
 const startServer = async () => {
   try {
-    // await connectDB(envConfig.MONGODB_URL, envConfig.MONGODB_DB_NAME); // Connect to MongoDB
-    app.listen(envConfig.PORT, () => {
-      console.log(
-        `✅ upload-service running on http://localhost:${envConfig.PORT}`
-      );
-    });
+    await connectRabbitMQ();
+    console.log("🐇 Connected to RabbitMQ");
+
+    // Poll SQS every 10 seconds (adjust as needed)
+    console.log("🚀 SQS polling started");
+    setInterval(safePollSQS, 10000);
   } catch (err) {
-    console.error("❌ Failed to connect to DB. Server not started.", err);
-    process.exit(1); // Exit if DB fails
+    console.error("❌ Server initialization failed:", err);
+    process.exit(1);
   }
 };
 
 startServer();
-

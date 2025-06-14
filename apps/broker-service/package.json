@@ -9,7 +9,8 @@
     },
     "dependencies": {
         "@aws-sdk/client-sqs": "^3.826.0",
-        "express": "^5.1.0"
+        "express": "^5.1.0",
+        "@shared/rabbitmq":"workspace:*"
     },
     "devDependencies": {
         "@types/express": "^5.0.2",

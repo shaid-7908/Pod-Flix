@@ -80,6 +80,9 @@ importers:
       '@aws-sdk/client-sqs':
         specifier: ^3.826.0
         version: 3.826.0
+      '@shared/rabbitmq':
+        specifier: workspace:*
+        version: link:../../packages/rabbitmq
       express:
         specifier: ^5.1.0
         version: 5.1.0

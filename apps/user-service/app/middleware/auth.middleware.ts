@@ -25,7 +25,7 @@ const authMiddleware = async (
   const refreshToken: string | undefined = req.cookies.refreshToken;
 
   try {
-    if (accessToken) {
+    if (accessToken) { 
       const user = await validateAccessToken(envConfig.JWT_SECRET, accessToken);
       if (user) {
         req.user = user;
