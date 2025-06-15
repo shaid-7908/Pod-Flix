@@ -8,11 +8,12 @@
     "dev": "ts-node-dev --poll --respawn --transpile-only  server.ts"
   },
   "dependencies": {
+    "@aws-sdk/s3-request-presigner": "^3.828.0",
     "@shared/database": "workspace:*",
+    "@shared/rabbitmq": "workspace:*",
     "@shared/redis": "workspace:*",
     "@shared/types": "workspace:*",
     "@shared/utils": "workspace:*",
-    "@shared/rabbitmq": "workspace:*",
     "aws-sdk": "^2.1692.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",

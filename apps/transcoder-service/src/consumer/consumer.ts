@@ -6,7 +6,7 @@ import path from 'path'
 import { ProcessedVideoModel } from "@shared/database";
 import {UnprocessedVideoDocument} from '@shared/types'
 import fs from 'fs'
-
+import { generateMasterPlaylist} from '../processor/createMaster'
 
 
 
@@ -44,6 +44,7 @@ export const handleIncomingVideo = async (msg: Record<string, any>) => {
   try {
     const localFilePath = await downloadFromS3(videoKey);
     await transcodeVideo(localFilePath, videoData);
+    generateMasterPlaylist(videoData._id.toString())
     const TO_DELETE_DIR = path.join(__dirname,"..","..", "tmp");
 
     const transcodedPath = path.join(
