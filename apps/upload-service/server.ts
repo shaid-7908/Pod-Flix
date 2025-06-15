@@ -4,7 +4,7 @@ import {connectDB} from '@shared/database'
 import envConfig from './app/config/env.config'
 import { errorHandler } from './app/middleware/error.handler'
 import videoRouter from './app/routes/video.routes'
-
+import {connectRabbitMQ} from '@shared/rabbitmq'
 
 const app = express()
 
@@ -20,6 +20,7 @@ app.use(errorHandler)
 const startServer = async () => {
   try {
     await connectDB(envConfig.MONGODB_URL, envConfig.MONGODB_DB_NAME); // Connect to MongoDB
+    await connectRabbitMQ()
     app.listen(envConfig.PORT, () => {
       console.log(`✅ upload-service running on http://localhost:${envConfig.PORT}`);
     });

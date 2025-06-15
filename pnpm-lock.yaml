@@ -148,6 +148,9 @@ importers:
       '@shared/database':
         specifier: workspace:*
         version: link:../../packages/database
+      '@shared/rabbitmq':
+        specifier: workspace:*
+        version: link:../../packages/rabbitmq
       '@shared/redis':
         specifier: workspace:*
         version: link:../../packages/redis

@@ -12,6 +12,7 @@
     "@shared/redis": "workspace:*",
     "@shared/types": "workspace:*",
     "@shared/utils": "workspace:*",
+    "@shared/rabbitmq":"workspace:*",
     "aws-sdk": "^2.1692.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",

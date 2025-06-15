@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 import { sendError, sendSuccess } from "../utils/unified.response";
 import { asyncHandler } from "../utils/async.handler";
 import { STATUS_CODES } from "@shared/utils";
-import { ChannelModel, UnprocessedVideoModel } from "@shared/database";
+import { ChannelModel, UnprocessedVideoModel ,ProcessedVideoModel} from "@shared/database";
+import {publishToVideoQueue} from '@shared/rabbitmq'
 
 class VideoController {
   testUpload = asyncHandler(async (req: Request, res: Response) => {
@@ -25,6 +26,22 @@ class VideoController {
             org_video_url:videoUrl,
             channel_id:user_channel._id
         })
+        const splitedUrl = videoUrl.split('/')
+        const creatProsessedVideoMetaDataForLaterUse = await ProcessedVideoModel.create({
+          video_id:createVideoMetadata._id,
+          channel_id:createVideoMetadata.channel_id
+        })
+        
+        const dataToSendInVideoQue = {
+             's3Filename':splitedUrl[splitedUrl.length - 1 ],
+             's3FolderName':'videos',
+             'unpProcessedVideoDocumentId':createVideoMetadata._id,
+             'channelID':createVideoMetadata.channel_id,
+             'processedVideoDocumentId':creatProsessedVideoMetaDataForLaterUse._id,
+             's3BucketName':splitedUrl[2].split('.')[0],
+
+        }
+        await publishToVideoQueue(dataToSendInVideoQue)
         return sendSuccess(res, "Video uploaded and saved successfully", {
           video_id: createVideoMetadata._id,
           title: createVideoMetadata.title,
