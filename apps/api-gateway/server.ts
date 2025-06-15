@@ -16,20 +16,20 @@ app.use(
 
 
 app.use(
-  "/video",
+  "/upload",
   createProxyMiddleware({
     target: "http://localhost:4002",
     changeOrigin: true,
-    pathRewrite: { "^/video": "" },
+    pathRewrite: { "^/upload": "" },
   })
 );
 
 app.use(
-  "/broker",
+  "/video",
   createProxyMiddleware({
     target: "http://localhost:4003",
     changeOrigin: true,
-    pathRewrite: { "^/broker": "" },
+    pathRewrite: { "^/video": "" },
   })
 );
 

@@ -262,6 +262,79 @@ importers:
         specifier: ^5.0.0
         version: 5.8.3
 
+  apps/video-service:
+    dependencies:
+      '@shared/database':
+        specifier: workspace:*
+        version: link:../../packages/database
+      '@shared/rabbitmq':
+        specifier: workspace:*
+        version: link:../../packages/rabbitmq
+      '@shared/redis':
+        specifier: workspace:*
+        version: link:../../packages/redis
+      '@shared/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@shared/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      aws-sdk:
+        specifier: ^2.1692.0
+        version: 2.1692.0
+      cookie-parser:
+        specifier: ^1.4.7
+        version: 1.4.7
+      cors:
+        specifier: ^2.8.5
+        version: 2.8.5
+      express:
+        specifier: ^5.1.0
+        version: 5.1.0
+      helmet:
+        specifier: ^8.1.0
+        version: 8.1.0
+      morgan:
+        specifier: ^1.10.0
+        version: 1.10.0
+      multer:
+        specifier: ^2.0.1
+        version: 2.0.1
+      multer-s3:
+        specifier: ^3.0.1
+        version: 3.0.1(@aws-sdk/client-s3@3.826.0)
+      uuid:
+        specifier: ^11.1.0
+        version: 11.1.0
+      zod:
+        specifier: ^3.25.45
+        version: 3.25.45
+    devDependencies:
+      '@aws-sdk/client-s3':
+        specifier: ^3.826.0
+        version: 3.826.0
+      '@aws-sdk/lib-storage':
+        specifier: ^3.826.0
+        version: 3.826.0(@aws-sdk/client-s3@3.826.0)
+      '@types/cookie-parser':
+        specifier: ^1.4.8
+        version: 1.4.8(@types/express@5.0.2)
+      '@types/express':
+        specifier: ^5.0.2
+        version: 5.0.2
+      '@types/multer':
+        specifier: ^1.4.13
+        version: 1.4.13
+      '@types/multer-s3':
+        specifier: ^3.0.3
+        version: 3.0.3
+      ts-node-dev:
+        specifier: ^2.0.0
+        version: 2.0.0(@types/node@22.15.29)(typescript@5.8.3)
+      typescript:
+        specifier: ^5.0.0
+        version: 5.8.3
+
   packages/database:
     dependencies:
       '@shared/types':
