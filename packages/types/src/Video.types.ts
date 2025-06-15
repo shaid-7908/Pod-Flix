@@ -32,3 +32,7 @@ export interface ProcessedVideoDocument extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface Dbb{
+    _id:Types.ObjectId
+}

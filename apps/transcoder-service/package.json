@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "ts-node-dev --poll --respawn --transpile-only  fku.ts"
+    "dev": "ts-node-dev --poll --respawn --transpile-only  server.ts"
   },
   "dependencies": {
     "@shared/database": "workspace:*",
