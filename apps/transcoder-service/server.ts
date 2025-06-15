@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import { Readable } from "stream";
 import { consumeVideoQueue, connectRabbitMQ } from "@shared/rabbitmq";
+import {UnprocessedVideoModel ,connectDB} from '@shared/database'
 
 // ---------- S3 Client Setup ----------
 const s3 = new S3Client({
@@ -58,7 +59,10 @@ const handleConsumeVideo = async (msg: Record<string, any>) => {
       console.warn("[⚠️] Missing 'object-key' or 'bucket-name' in message");
       return;
     }
+    const dbVideoUrl = `https://tempo-video-bucket.s3.ap-south-1.amazonaws.com/${videoKey}`;
+    const videoData = await UnprocessedVideoModel.findOne({org_video_url:dbVideoUrl})
 
+    console.log(videoData,'video data')
     await downloadFromS3(videoKey);
   } catch (error) {
     console.error("[❌] Error handling video message:", error);
@@ -68,6 +72,7 @@ const handleConsumeVideo = async (msg: Record<string, any>) => {
 // ---------- Bootstrap ----------
 const startConsumer = async () => {
   try {
+    await connectDB(envConfig.MONGODB_URL,envConfig.MONGODB_DB_NAME)
     await connectRabbitMQ();
     await consumeVideoQueue(handleConsumeVideo);
     console.log("[🚀] Video consumer is running...");
@@ -77,3 +82,4 @@ const startConsumer = async () => {
 };
 
 startConsumer();
+

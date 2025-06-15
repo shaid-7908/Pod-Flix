@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { UnprocessedVideoDocument } from "@shared/types";
+import { UnprocessedVideoDocument ,ResolutionVariant,ProcessedVideoDocument} from "@shared/types";
 
 const UnprocessedVideoSchema = new Schema<UnprocessedVideoDocument>({
     title:{
@@ -33,4 +33,31 @@ const UnprocessedVideoSchema = new Schema<UnprocessedVideoDocument>({
     }
 })
 
+const ResolutionVariantSchema = new Schema<ResolutionVariant>({
+    bitrate:String,
+    label:String,
+    playlistUrl:String,
+    resolution:String,
+})
+
+const ProcessedVideoSchema = new Schema<ProcessedVideoDocument>({
+  video_id: {
+    type: Schema.Types.ObjectId,
+    ref: "unprocessed_video",
+    required: true,
+  },
+  channel_id: { type: Schema.Types.ObjectId, ref: "channels", required: true },
+  bucket: { type: String },
+  s3Key: { type: String },
+  status: {
+    type: String,
+    enum: ["UPLOADED", "PROCESSING", "DONE", "ERROR"],
+    default: "UPLOADED",
+  },
+  resolutions:[ResolutionVariantSchema],
+  duration:{type:Number},
+  errorMessage:{type:String}
+},{timestamps:true});
+
 export const UnprocessedVideoModel = model<UnprocessedVideoDocument>('unprocessed_video',UnprocessedVideoSchema)
+export const ProcessedVideoModel = model<ProcessedVideoDocument>('processed_video',ProcessedVideoSchema)
