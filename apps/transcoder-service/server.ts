@@ -59,7 +59,7 @@ const handleConsumeVideo = async (msg: Record<string, any>) => {
       console.warn("[⚠️] Missing 'object-key' or 'bucket-name' in message");
       return;
     }
-    const dbVideoUrl = `https://tempo-video-bucket.s3.ap-south-1.amazonaws.com/${videoKey}`;
+    const dbVideoUrl = ``;
     const videoData = await UnprocessedVideoModel.findOne({org_video_url:dbVideoUrl})
 
     console.log(videoData,'video data')
