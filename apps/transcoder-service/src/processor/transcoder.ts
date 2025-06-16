@@ -59,7 +59,19 @@ export const transcodeVideo = async (
       })
       .on("end", () => {
         console.log(`✅ Transcoding completed: ${filename}`);
-        resolve(); // ✅ notify completion
+        fs.promises
+          .unlink(inputPath)
+          .then(() => {
+            console.log(`🗑️ Deleted original file: ${filename}`);
+            resolve(); // Now resolve after deletion
+          })
+          .catch((err) => {
+            console.error(
+              `⚠️ Failed to delete original file ${filename}:`,
+              err.message
+            );
+            resolve(); // Still resolve to continue flow
+          });
       })
       .on("error", (err) => {
         console.error(`❌ Error processing ${filename}:`, err.message);

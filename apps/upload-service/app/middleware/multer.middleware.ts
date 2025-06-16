@@ -57,6 +57,7 @@ const uploadVideoToS3 = async (
 
     // Attach public S3 URL to req.body
     req.body.videoUrl = `https://${envConfig.AWS_S3_BUCKET_NAME}.s3.${envConfig.AWS_REGION}.amazonaws.com/${fileKey}`;
+    req.body.uniqueFileNameKey = uniquefilename.split('.')[0]
     next(); // Pass to next middleware/controller
   } catch (error) {
     console.error("S3 Upload Error:", error);

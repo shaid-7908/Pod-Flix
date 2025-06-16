@@ -8,7 +8,8 @@ export interface UnprocessedVideoDocument extends Document{
     channel_id:Types.ObjectId,
     status:string,
     duration:number,
-    resolution:string
+    resolution:string,
+    unique_file_name_key:string
 
 }
 

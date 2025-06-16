@@ -69,7 +69,15 @@ export const uploadTranscodedFolder = async (
     console.warn(`[⚠️] Some files failed to upload:`, failedFiles);
     // Optionally: throw new Error("Upload incomplete");
   }
-
+  try {
+      fs.rmSync(loaclFULLFolderPath, { recursive: true, force: true });
+      console.log(`🗑️ Deleted folder: ${loaclFULLFolderPath}`);
+    } catch (err) {
+      console.error(
+        `❌ Failed to delete folder ${loaclFULLFolderPath}:`,
+        (err as Error).message
+      );
+    }
   console.log(`[✔️] Completed upload for video: ${videoId}\n`);
   return uploadedPlaylists;
 };

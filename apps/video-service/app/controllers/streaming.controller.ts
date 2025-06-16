@@ -35,7 +35,7 @@ class StreamingController{
          const s3FolderName = processedVideo.resolutions[0].playlistUrl
          const s3Array = s3FolderName.split('/')
          const s3bb = s3Array[s3Array.length - 2]
-         const s3Key = `hls/${s3bb}/240p.m3u8`
+         const s3Key = `hls/${s3bb}/master.m3u8`
          const command = new GetObjectCommand({
            Bucket: envConfig.AWS_S3_UPLOAD_BUCKET_NAME,
            Key: s3Key,

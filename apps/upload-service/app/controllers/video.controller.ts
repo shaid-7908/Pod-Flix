@@ -24,7 +24,8 @@ class VideoController {
             title:title,
             description:description,
             org_video_url:videoUrl,
-            channel_id:user_channel._id
+            channel_id:user_channel._id,
+            unique_file_name_key:req.body.uniqueFileNameKey
         })
         const splitedUrl = videoUrl.split('/')
         

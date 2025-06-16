@@ -1,4 +1,4 @@
-import { downloadFromS3 } from "../utils/s3Downloader";
+import { downloadFromS3 ,uploadHLSFolder } from "../utils/s3Service";
 import { transcodeVideo } from "../processor/transcoder";
 import { UnprocessedVideoModel } from "@shared/database";
 import { uploadTranscodedFolder } from "../utils/uploadTranscodedFolder";
@@ -6,8 +6,8 @@ import path from 'path'
 import { ProcessedVideoModel } from "@shared/database";
 import {UnprocessedVideoDocument} from '@shared/types'
 import fs from 'fs'
-import { generateMasterPlaylist} from '../processor/createMaster'
-
+import { generateMasterPlaylist} from '../processor/masterPlaylist'
+import {getVideoDuration} from '../processor/videoDuration'
 
 
 export const handleIncomingVideo = async (msg: Record<string, any>) => {
@@ -42,11 +42,12 @@ export const handleIncomingVideo = async (msg: Record<string, any>) => {
   }
 
   try {
-    const localFilePath = await downloadFromS3(videoKey);
-    await transcodeVideo(localFilePath, videoData);
+    const fileNameIntmpFolder = await downloadFromS3(videoKey); //this is *.mp4 not tmp/*.mp4
+    await transcodeVideo(fileNameIntmpFolder, videoData);
     generateMasterPlaylist(videoData._id.toString())
-    const TO_DELETE_DIR = path.join(__dirname,"..","..", "tmp");
-
+    // const TO_DELETE_DIR = path.join(__dirname,"..","..", "tmp");
+    // const FULL_FILE_PATH=`${localFilePath}/${videoData._id}.mp4`
+    // const videoduration = await getVideoDuration(localFilePath)
     const transcodedPath = path.join(
       __dirname,
       "..",
@@ -67,7 +68,7 @@ export const handleIncomingVideo = async (msg: Record<string, any>) => {
       s3Key: videoKey,
       status: "DONE",
       resolutions: results,
-      duration: videoData.duration || undefined, // optionally compute using ffprobe
+      duration: 2, // optionally compute using ffprobe
     });
 
     // Optional: update status in UnprocessedVideoModel
@@ -93,24 +94,6 @@ export const handleIncomingVideo = async (msg: Record<string, any>) => {
       { _id: videoData._id },
       { $set: { status: "FLD" } }
     );
-  }finally{
-    // 4. CLEANUP
-    const TMP_DIR = path.join(__dirname, "..", "..", "tmp");
-    const TRANSCODED_DIR = path.join(__dirname, "..", "..", "transcoded");
-
-    try {
-      if (fs.existsSync(TMP_DIR)) {
-        fs.rmSync(TMP_DIR, { recursive: true, force: true });
-        console.log("🧹 Deleted tmp folder.");
-      }
-
-      if (fs.existsSync(TRANSCODED_DIR)) {
-        fs.rmSync(TRANSCODED_DIR, { recursive: true, force: true });
-        console.log("🧹 Deleted transcoded folder.");
-      }
-    } catch (cleanupErr) {
-      console.warn("⚠️ Cleanup failed:", cleanupErr);
-    }
   }
   
 };

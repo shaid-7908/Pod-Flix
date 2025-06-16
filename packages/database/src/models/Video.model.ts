@@ -20,6 +20,11 @@ const UnprocessedVideoSchema = new Schema<UnprocessedVideoDocument>({
         ref:'channels',
         required:true
     },
+    unique_file_name_key:{
+        type:String,
+        required:true,
+        unique:true,
+    },
     status:{
         type:String,
         enum:["UNPR","PRNG","PRCD","FLD"],
