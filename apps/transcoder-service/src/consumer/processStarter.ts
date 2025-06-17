@@ -1,16 +1,13 @@
-import { downloadFromS3 ,uploadHLSFolder } from "../utils/s3Service";
+import { downloadFromS3 ,uploadTranscodedFolder } from "../utils/s3Service";
 import { transcodeVideo } from "../processor/transcoder";
 import { UnprocessedVideoModel } from "@shared/database";
-import { uploadTranscodedFolder } from "../utils/uploadTranscodedFolder";
 import path from 'path'
 import { ProcessedVideoModel } from "@shared/database";
-import {UnprocessedVideoDocument} from '@shared/types'
-import fs from 'fs'
 import { generateMasterPlaylist} from '../processor/masterPlaylist'
 import {getVideoDuration} from '../processor/videoDuration'
 
 
-export const handleIncomingVideo = async (msg: Record<string, any>) => {
+export const stratProcessingVideo = async (msg: Record<string, any>) => {
   
   const bucket = msg["bucket-name"];
 
@@ -43,11 +40,11 @@ export const handleIncomingVideo = async (msg: Record<string, any>) => {
 
   try {
     const fileNameIntmpFolder = await downloadFromS3(videoKey); //this is *.mp4 not tmp/*.mp4
+    const videoduration = await getVideoDuration(fileNameIntmpFolder);
     await transcodeVideo(fileNameIntmpFolder, videoData);
     generateMasterPlaylist(videoData._id.toString())
-    // const TO_DELETE_DIR = path.join(__dirname,"..","..", "tmp");
-    // const FULL_FILE_PATH=`${localFilePath}/${videoData._id}.mp4`
-    // const videoduration = await getVideoDuration(localFilePath)
+    
+    
     const transcodedPath = path.join(
       __dirname,
       "..",
@@ -68,7 +65,7 @@ export const handleIncomingVideo = async (msg: Record<string, any>) => {
       s3Key: videoKey,
       status: "DONE",
       resolutions: results,
-      duration: 2, // optionally compute using ffprobe
+      duration: videoduration, // optionally compute using ffprobe
     });
 
     // Optional: update status in UnprocessedVideoModel

@@ -37,3 +37,36 @@ export interface ProcessedVideoDocument extends Document {
 export interface Dbb{
     _id:Types.ObjectId
 }
+
+
+export interface VideoReaction {
+  video_id: Types.ObjectId;
+  user_id: Types.ObjectId;
+  reaction: "LIKE" | "DISLIKE";
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface VideoReactionDocument extends VideoReaction, Document {}
+
+
+export interface VideoComment {
+  video_id: Types.ObjectId;
+  user_id: Types.ObjectId;
+  comment_text: string;
+  parent_comment_id?: Types.ObjectId | null;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface VideoCommentDocument extends VideoComment, Document {}
+
+
+export interface VideoView {
+  video_id: Types.ObjectId;
+  user_id?: Types.ObjectId; // Optional, in case of anonymous views
+  ip_address?: string; // Optional, to support user-less tracking
+  viewed_at?: Date; // Optional, defaulted to Date.now by schema
+}
+
+export interface VideoViewDocument extends VideoView, Document {}

@@ -297,6 +297,9 @@ importers:
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
+      mongoose:
+        specifier: ^8.15.1
+        version: 8.15.1
       morgan:
         specifier: ^1.10.0
         version: 1.10.0

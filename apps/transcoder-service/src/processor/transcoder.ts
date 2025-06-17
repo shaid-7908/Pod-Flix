@@ -8,10 +8,14 @@ const OUTPUT_DIR = path.join(__dirname,"..","..", "transcoded");
 
 // HLS variants
 const RESOLUTIONS = [
-  
-  { label: "240p", resolution: "426x240", bitrate: "300k" },
   { label: "144p", resolution: "256x144", bitrate: "150k" },
+  { label: "240p", resolution: "426x240", bitrate: "300k" },
+  { label: "360p", resolution: "640x360", bitrate: "800k" },
+  { label: "480p", resolution: "854x480", bitrate: "1200k" },
+  { label: "720p", resolution: "1280x720", bitrate: "2500k" },
+  { label: "1080p", resolution: "1920x1080", bitrate: "5000k" },
 ];
+
 
 
 // Ensure output dir exists

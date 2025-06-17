@@ -9,7 +9,12 @@ export interface ChannelDocument extends Document{
     banner_image:string,
 }
 
-export interface ChannelSubscriberDocument extends Document{
-    channel_id:Types.ObjectId,
-    subscribers:Types.ObjectId[]
+export interface ChannelSubscription {
+  channel_id: Types.ObjectId;
+  user_id: Types.ObjectId;
+  subscribed_at?: Date; // Optional because of default value
+  createdAt?: Date;
+  updatedAt?: Date;
 }
+
+export interface ChannelSubscriptionDocument extends ChannelSubscription,Document {}
