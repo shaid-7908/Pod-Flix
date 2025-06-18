@@ -282,6 +282,9 @@ importers:
       '@shared/utils':
         specifier: workspace:*
         version: link:../../packages/utils
+      amqplib:
+        specifier: ^0.10.8
+        version: 0.10.8
       aws-sdk:
         specifier: ^2.1692.0
         version: 2.1692.0
@@ -322,6 +325,9 @@ importers:
       '@aws-sdk/lib-storage':
         specifier: ^3.826.0
         version: 3.826.0(@aws-sdk/client-s3@3.826.0)
+      '@types/amqplib':
+        specifier: ^0.10.7
+        version: 0.10.7
       '@types/cookie-parser':
         specifier: ^1.4.8
         version: 1.4.8(@types/express@5.0.2)
