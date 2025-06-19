@@ -1,5 +1,6 @@
 import { ConsumeMessage, GetMessage } from "amqplib";
 import { connectToLikeExchange,getLikeChannel  } from "@shared/rabbitmq";
+import {VideoReactionModel } from '@shared/database'
 
 const QUEUE_NAME = "like_queue";
 const INTERVAL_MS = 3000; // Every 3 seconds
@@ -33,7 +34,7 @@ export const startBatchLikeConsumer = async () => {
           `[Batch] Updating DB with ${messages.length} messages`,
           parsedPayloads
         );
-
+        await VideoReactionModel.insertMany(parsedPayloads)
         // ✅ Acknowledge all
         messages.forEach((msg) => channel.ack(msg));
       } catch (err) {

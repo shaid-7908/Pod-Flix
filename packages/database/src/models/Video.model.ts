@@ -82,7 +82,7 @@ const VideoCommentSchema = new Schema<VideoCommentDocument>(
   {
     video_id: {
       type: Schema.Types.ObjectId,
-      ref: "processed_video",
+      ref: "unprocessed_video",
       required: true,
     },
     user_id: {
@@ -108,7 +108,7 @@ const VideoReactionSchema = new Schema<VideoReactionDocument>(
   {
     video_id: {
       type: Schema.Types.ObjectId,
-      ref: "processed_video",
+      ref: "unprocessed_video",
       required: true,
     },
     user_id: {
@@ -125,6 +125,7 @@ const VideoReactionSchema = new Schema<VideoReactionDocument>(
   { timestamps: true }
 );
   
+VideoReactionSchema.index({video_id:1,user_id:1},{unique:true})
 
 const VideoViewSchema = new Schema<VideoViewDocument>({
   video_id: {
