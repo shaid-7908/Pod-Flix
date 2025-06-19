@@ -5,8 +5,11 @@ import authMiddleware from '../middlewares/auth.middleware'
 const interactionRouter = express.Router()
 
 
-interactionRouter.get('/test-like',interactionController.testLikeBulkUpdate)
+
 interactionRouter.post('/update-interaction',authMiddleware,interactionController.updateLikesOfVideo)
 interactionRouter.post('/add-comment',authMiddleware,interactionController.addComment)
+interactionRouter.post('/reply-comment',authMiddleware,interactionController.addReplyComment)
+interactionRouter.get('/get-comments',authMiddleware,interactionController.getComments)
+interactionRouter.delete('/delete-comment',authMiddleware,interactionController.deleteComment)
 
 export default interactionRouter

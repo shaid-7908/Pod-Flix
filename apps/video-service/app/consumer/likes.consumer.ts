@@ -34,7 +34,16 @@ export const startBatchLikeConsumer = async () => {
           `[Batch] Updating DB with ${messages.length} messages`,
           parsedPayloads
         );
-        await VideoReactionModel.insertMany(parsedPayloads)
+        // await VideoReactionModel.insertMany(parsedPayloads)
+        await VideoReactionModel.bulkWrite(
+          parsedPayloads.map((payload) => ({
+            updateOne: {
+              filter: { user_id: payload.user_id, video_id: payload.video_id },
+              update: { $set: { reaction: payload.reaction } },
+              upsert: true,
+            },
+          }))
+        );
         // ✅ Acknowledge all
         messages.forEach((msg) => channel.ack(msg));
       } catch (err) {
