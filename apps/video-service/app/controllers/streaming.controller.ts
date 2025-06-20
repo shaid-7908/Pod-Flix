@@ -4,9 +4,11 @@ import { Request ,Response} from "express"
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import envConfig from "../config/env.config";
-import { ProcessedVideoModel } from "@shared/database";
+import { ProcessedVideoModel, UnprocessedVideoModel } from "@shared/database";
 import { sendError, sendSuccess } from "../utils/unified.response";
 import { STATUS_CODES } from "@shared/utils";
+
+import { getCachedVideoData,cacheVideoData , invalidateVideoCache } from "@shared/redis";
 import mongoose from "mongoose";
 
 const s3 = new S3Client({
@@ -22,40 +24,51 @@ class StreamingController{
     streamVideo = asyncHandler(async (req:Request,res:Response)=>{
          const {videoId} = req.params
          const user = req.user as JwtPayload | undefined
-
-        //  const processedVideo = await ProcessedVideoModel.findOne({
-        //     _id:videoId,
-        //     status:'DONE'
-        //  })
-
-         const processedVideo = await ProcessedVideoModel.aggregate([
-           {
-             $match: {
-               _id: new mongoose.Types.ObjectId(videoId),
-               status: "DONE",
-             },
-           },
-           {
-             $lookup: {
-               from: "unprocessed_videos",
-               localField: "video_id",
-               foreignField: "_id",
-               as: "other_info",
-             },
-           },
-           {
-             $unwind: {
-               path: "$other_info",
-               preserveNullAndEmptyArrays: true, // Set to false if you want to skip if no match
-             },
-           },
-         ]);
+         let processedVideo = await getCachedVideoData(videoId)
+         if(!processedVideo){
+          console.log('cache not exists')
+          const result = await UnprocessedVideoModel.aggregate([
+            {
+              $match: {
+                _id: new mongoose.Types.ObjectId(videoId),
+                status: "PRCD",
+              },
+            },
+            {
+              $lookup: {
+                from: "processed_videos",
+                let: { videoId: "$_id" },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: { $eq: ["$video_id", "$$videoId"] },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      resolutions: 1,
+                      duration: 1,
+                      // All other fields will be excluded automatically
+                    },
+                  },
+                ],
+                as: "processed_data",
+              },
+            },
+          ]);
+          await cacheVideoData(videoId,result)
+          processedVideo=result
+        }
+        
+        
 
          if(!processedVideo || processedVideo.length <= 0){
            return sendError(res,'Video is not available',null,STATUS_CODES.BAD_GATEWAY)
          }
          
-         const s3FolderName = processedVideo[0].resolutions[0].playlistUrl
+         
+         const s3FolderName = processedVideo[0].processed_data[0].resolutions[0].playlistUrl
          const s3Array = s3FolderName.split('/')
          const s3bb = s3Array[s3Array.length - 2]
          const s3Key = `hls/${s3bb}/master.m3u8`
@@ -69,12 +82,14 @@ class StreamingController{
          const videoWithMetadata = {
            signed_url: signedUrl,
            channel_id: processedVideo[0].channel_id,
-           orginal_video_id: processedVideo[0].other_info._id,
-           video_title: processedVideo[0].other_info.title,
-           video_description: processedVideo[0].other_info.description,
+           orginal_video_id: processedVideo[0]._id,
+           video_title: processedVideo[0].title,
+           video_description: processedVideo[0].description,
          };
          
          return sendSuccess(res,'Video fetched successfully',videoWithMetadata,STATUS_CODES.OK);
+
+       // return sendSuccess(res,'op',processedVideo,STATUS_CODES.ACCEPTED)
 
          
     })

@@ -37,6 +37,24 @@ class InteractionController{
        return sendSuccess(res,'Interaction added successfully',null,STATUS_CODES.OK)
     })
 
+    getLikesOfVideo = asyncHandler(async (req,res)=>{
+      const {video_id} = req.body
+      const totalLikes = await VideoReactionModel.aggregate([
+        {
+          $match:{
+          video_id:new mongoose.Types.ObjectId(video_id),
+          reaction:'LIKE'
+        }
+      },
+      {
+        $count:'likecount'
+      }
+      ])
+
+      return sendSuccess(res,'Total number of likes',totalLikes,STATUS_CODES.OK)
+
+    })
+
     addComment = asyncHandler(async (req:Request,res:Response)=>{
        const user = req.user as JwtPayload
        const { video_id, comment_text } = req.body;

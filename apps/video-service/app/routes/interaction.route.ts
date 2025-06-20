@@ -7,6 +7,7 @@ const interactionRouter = express.Router()
 
 
 interactionRouter.post('/update-interaction',authMiddleware,interactionController.updateLikesOfVideo)
+interactionRouter.get('/getall-likes',interactionController.getLikesOfVideo)
 interactionRouter.post('/add-comment',authMiddleware,interactionController.addComment)
 interactionRouter.post('/reply-comment',authMiddleware,interactionController.addReplyComment)
 interactionRouter.get('/get-comments',authMiddleware,interactionController.getComments)
