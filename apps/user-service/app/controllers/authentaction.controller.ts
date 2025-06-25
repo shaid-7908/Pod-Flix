@@ -3,7 +3,7 @@ import { asyncHandler } from "../utils/async.handler";
 import { registerSchema } from "../validation/registerschema.validation";
 import { loginSchema } from "../validation/loginschema.validation";
 import { sendError, sendSuccess } from "../utils/unified.response";
-import { STATUS_CODES, hashPassword,validateAccessToken, comparePassword ,generateAccessToken,generateRefreshToken,validateRefreshToken } from "@shared/utils";
+import { STATUS_CODES, hashPassword, validateAccessToken, comparePassword, generateAccessToken, generateRefreshToken, validateRefreshToken } from "@shared/utils";
 import {
   reserveUsernameLock,
   usernameExists,
@@ -110,54 +110,53 @@ class AuthenticationController {
       user_password,
       getUser.user_password
     );
-    const tokenPayload:JwtPayload ={
-     user_id:getUser._id.toString(),
-     user_email:getUser.user_email,
-     user_name:getUser.user_name
+    const tokenPayload: JwtPayload = {
+      user_id: getUser._id.toString(),
+      user_email: getUser.user_email,
+      user_name: getUser.user_name
     }
     if (matchPassword) {
-      const accessToken = generateAccessToken(tokenPayload,envConfig.JWT_SECRET)
-      const refreshToken = generateRefreshToken(tokenPayload,envConfig.JWT_SECRET)
+      const accessToken = generateAccessToken(tokenPayload, envConfig.JWT_SECRET)
+      const refreshToken = generateRefreshToken(tokenPayload, envConfig.JWT_SECRET)
 
-      res.cookie('refreshToken',refreshToken,{httpOnly:true})
-      res.cookie('accessToken',accessToken,{httpOnly:true})
+      res.cookie('refreshToken', refreshToken, { httpOnly: true })
+      res.cookie('accessToken', accessToken, { httpOnly: true })
 
-      const payloadUser:UserPayload = {
-           user_email:getUser.user_email,
-           user_id:getUser._id.toString(),
-           user_name:getUser.user_name
+      const payloadUser: UserPayload = {
+        user_email: getUser.user_email,
+        user_id: getUser._id.toString(),
+        user_name: getUser.user_name
       }
-      const payloadData ={
-        user_data:payloadUser,
-        access_token:accessToken
+      const payloadData = {
+        user_data: payloadUser,
+        access_token: accessToken
       }
-      return sendSuccess(res,'Login successfull',payloadData,STATUS_CODES.ACCEPTED)
-    }else{
-      return sendError(res,'Invalid password',null,STATUS_CODES.BAD_REQUEST)
+      return sendSuccess(res, 'Login successfull', payloadData, STATUS_CODES.ACCEPTED)
+    } else {
+      return sendError(res, 'Invalid password', null, STATUS_CODES.BAD_REQUEST)
     }
   });
 
   refreshToken = asyncHandler(async (req: Request, res: Response) => {
-  const refreshToken = req.cookies.refreshToken;
-  if (!refreshToken) {
-    return sendError(res, "No refresh token", null, STATUS_CODES.UNAUTHORIZED);
-  }
-  const user = await validateRefreshToken(envConfig.JWT_SECRET, refreshToken);
-  if (!user) {
-    return sendError(res, "Invalid refresh token", null, STATUS_CODES.UNAUTHORIZED);
-  }
-  const newAccessToken = generateAccessToken(user, envConfig.JWT_SECRET);
-  res.cookie("accessToken", newAccessToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-  });
-  return sendSuccess(res, "Token refreshed", { access_token: newAccessToken }, STATUS_CODES.OK);
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      console.log('No refresh token')
+      return sendError(res, "No refresh token", null, STATUS_CODES.UNAUTHORIZED);
+    }
+    const user = await validateRefreshToken(envConfig.JWT_SECRET, refreshToken);
+    if (!user) {
+      return sendError(res, "Invalid refresh token", null, STATUS_CODES.UNAUTHORIZED);
+    }
+    const newAccessToken = generateAccessToken(user, envConfig.JWT_SECRET);
+    res.cookie("accessToken", newAccessToken, {
+      httpOnly: true,
+    });
+    return sendSuccess(res, "Token refreshed", { access_token: newAccessToken, user_data: user }, STATUS_CODES.OK);
   });
 
   logoutUser = asyncHandler(async (req: Request, res: Response) => {
-    res.clearCookie('accessToken', { httpOnly: true});
-    res.clearCookie('refreshToken', { httpOnly: true});
+    res.clearCookie('accessToken', { httpOnly: true });
+    res.clearCookie('refreshToken', { httpOnly: true });
     return sendSuccess(res, 'Logout successful', null, STATUS_CODES.OK);
   });
 
@@ -185,7 +184,7 @@ class AuthenticationController {
       user_id: user._id.toString(),
       user_email: user.user_email,
       user_name: user.user_name,
-      user_avatar:  "" // or provide a default avatar
+      user_avatar: "" // or provide a default avatar
     };
 
     return sendSuccess(res, "User authenticated", { user_data }, STATUS_CODES.OK);

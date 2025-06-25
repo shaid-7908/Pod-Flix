@@ -1,9 +1,10 @@
-import { ChannelModel } from "@shared/database";
+import { ChannelModel, UnprocessedVideoModel,VideoCommentModel } from "@shared/database";
 import { asyncHandler } from "../utils/async.handler";
 import { Request,Response } from "express";
 import { channelSchema } from "../validation/channelschema.validation";
 import { sendError, sendSuccess } from "../utils/unified.response";
 import { STATUS_CODES } from "@shared/utils";
+import mongoose from "mongoose";
 
 class ChannelController{
     createChannel=asyncHandler(async( req:Request,res:Response)=>{
@@ -18,6 +19,45 @@ class ChannelController{
 
        return sendSuccess(res,"Channel created successfully",createdChannel,STATUS_CODES.CREATED)
 
+    })
+    getOwnChannelInfo=asyncHandler(async (req:Request,res:Response)=>{
+          const user_id = req.user?.user_id
+          const channel = await ChannelModel.findOne({owner_id:user_id})
+          if(!channel){
+            return sendError(res,"Channel not found or is not created",null,STATUS_CODES.NOT_FOUND)
+          }
+          const TotalVideos = await UnprocessedVideoModel.aggregate([
+            {$match:{channel_id:new mongoose.Types.ObjectId(channel._id as string)}},
+            {$count:"total_videos"}
+          ])
+          const totalComments = await VideoCommentModel.aggregate([
+            {
+              $lookup: {
+                from: "unprocessed_videos", // ← collection name (plural of model)
+                localField: "video_id",
+                foreignField: "_id",
+                as: "video",
+              },
+            },
+            { $unwind: "$video" },
+            {
+              $match: {
+                "video.channel_id": new mongoose.Types.ObjectId(channel._id as string),
+              },
+            },
+            {
+              $count: "total",
+            },
+          ]);
+
+          const overAllDetails = {
+            total_videos:TotalVideos[0].total_videos,
+            channel_info:channel
+          }
+
+
+         return sendSuccess(res,"Channel info",
+            overAllDetails,STATUS_CODES.OK)
     })
     
 }

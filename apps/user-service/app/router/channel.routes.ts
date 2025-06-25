@@ -6,6 +6,7 @@ import authMiddleware from '../middleware/auth.middleware'
 const channelRouter = express.Router()
 channelRouter.use(authMiddleware)
 channelRouter.post('/create-channel',channelController.createChannel)
+channelRouter.get('/get-own-channel-info',channelController.getOwnChannelInfo)
 
 export default channelRouter
 
