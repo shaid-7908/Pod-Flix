@@ -2,6 +2,53 @@
 
 A scalable, microservices-based video platform built with Node.js, TypeScript, and Docker.
 
+## Architecture
+
+```mermaid
+flowchart TD
+  subgraph Client
+    A["Frontend / API Consumer"]
+  end
+
+  A -->|HTTP| B["API Gateway"]
+
+  subgraph Services
+    B --> C["User Service"]
+    B --> D["Upload Service"]
+    B --> E["Video Service"]
+    B --> F["Transcoder Service"]
+  end
+
+  C <--> |DB| G["Database (MongoDB)"]
+  D <--> |DB| G
+  E <--> |DB| G
+
+  C <--> |Cache| H["Redis"]
+  D <--> |Cache| H
+  E <--> |Cache| H
+
+  C <--> |Broker| I["Broker Service (RabbitMQ)"]
+  D <--> |Broker| I
+  E <--> |Broker| I
+  F <--> |Broker| I
+
+  D <--> J["S3 Storage"]
+  F <--> J
+
+  E <--> J
+
+  style G fill:#fff,stroke:#333,stroke-width:2px
+  style H fill:#fff,stroke:#333,stroke-width:2px
+  style I fill:#fff,stroke:#333,stroke-width:2px
+  style J fill:#fff,stroke:#333,stroke-width:2px
+```
+
+**How it works:**
+- The API Gateway is the single entry point for all client requests.
+- Each microservice (User, Upload, Video, Transcoder) handles a specific domain.
+- MongoDB is used for persistent storage, Redis for caching, and RabbitMQ for asynchronous communication.
+- S3 (or compatible storage) is used for video file storage and retrieval.
+
 ## Monorepo Structure
 
 - **apps/**
