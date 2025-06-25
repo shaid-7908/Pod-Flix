@@ -1,8 +1,19 @@
 import express from "express";
 import { createProxyMiddleware } from "http-proxy-middleware";
-
+import cors from "cors";
 const app = express();
 const PORT = 3000;
+// 🔓 Enable CORS for all origins and methods
+app.use(
+  cors({
+    origin: "http://localhost:5173", // your frontend URL (adjust as needed)
+    credentials: true,              // allow cookies if needed
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
+
 
 // Proxy setup
 app.use(

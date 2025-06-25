@@ -1,13 +1,12 @@
 import {
-  generateAccessToken,
   validateAccessToken,
-  validateRefreshToken,
   STATUS_CODES,
 } from "@shared/utils";
 import { Request, Response, NextFunction } from "express";
 import envConfig from "../config/env.config";
 import { asyncHandler } from "../utils/async.handler";
 
+// ... existing code ...
 declare global {
   namespace Express {
     interface Request {
@@ -21,9 +20,7 @@ const authMiddleware = async (
   res: Response,
   next: NextFunction
 ) => {
-    console.log('am here')
   const accessToken: string | undefined = req.cookies.accessToken;
-  const refreshToken: string | undefined = req.cookies.refreshToken;
 
   try {
     if (accessToken) {
@@ -33,27 +30,6 @@ const authMiddleware = async (
         return next();
       }
     }
-
-    // Access token missing or invalid, fallback to refresh token
-    if (refreshToken) {
-      const user = await validateRefreshToken(
-        envConfig.JWT_SECRET,
-        refreshToken
-      );
-      if (user) {
-        const newAccessToken = generateAccessToken(user, envConfig.JWT_SECRET);
-
-        // Set new access token in HTTP-only cookie
-        res.cookie("accessToken", newAccessToken, {
-          httpOnly: true,
-        });
-
-        req.user = user;
-        return next();
-      }
-    }
-
-    // Both tokens failed
     return res.status(STATUS_CODES.UNAUTHORIZED).json({
       success: false,
       message: "Authentication required",

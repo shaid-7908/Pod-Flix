@@ -3,7 +3,7 @@ import { asyncHandler } from "../utils/async.handler";
 import { registerSchema } from "../validation/registerschema.validation";
 import { loginSchema } from "../validation/loginschema.validation";
 import { sendError, sendSuccess } from "../utils/unified.response";
-import { STATUS_CODES, hashPassword, comparePassword ,generateAccessToken,generateRefreshToken } from "@shared/utils";
+import { STATUS_CODES, hashPassword,validateAccessToken, comparePassword ,generateAccessToken,generateRefreshToken,validateRefreshToken } from "@shared/utils";
 import {
   reserveUsernameLock,
   usernameExists,
@@ -90,6 +90,7 @@ class AuthenticationController {
   });
 
   loginUser = asyncHandler(async (req: Request, res: Response) => {
+    console.log(req.body)
     const validateLoginRequest = loginSchema.safeParse(req.body);
 
     if (!validateLoginRequest.success) {
@@ -135,6 +136,61 @@ class AuthenticationController {
       return sendError(res,'Invalid password',null,STATUS_CODES.BAD_REQUEST)
     }
   });
+
+  refreshToken = asyncHandler(async (req: Request, res: Response) => {
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken) {
+    return sendError(res, "No refresh token", null, STATUS_CODES.UNAUTHORIZED);
+  }
+  const user = await validateRefreshToken(envConfig.JWT_SECRET, refreshToken);
+  if (!user) {
+    return sendError(res, "Invalid refresh token", null, STATUS_CODES.UNAUTHORIZED);
+  }
+  const newAccessToken = generateAccessToken(user, envConfig.JWT_SECRET);
+  res.cookie("accessToken", newAccessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+  return sendSuccess(res, "Token refreshed", { access_token: newAccessToken }, STATUS_CODES.OK);
+  });
+
+  logoutUser = asyncHandler(async (req: Request, res: Response) => {
+    res.clearCookie('accessToken', { httpOnly: true});
+    res.clearCookie('refreshToken', { httpOnly: true});
+    return sendSuccess(res, 'Logout successful', null, STATUS_CODES.OK);
+  });
+
+  checkMe = asyncHandler(async (req: Request, res: Response) => {
+    // Get the access token from cookies
+    const accessToken = req.cookies.accessToken;
+    if (!accessToken) {
+      return sendError(res, "Not authenticated", null, STATUS_CODES.UNAUTHORIZED);
+    }
+
+    // Validate the access token
+    const userPayload = await validateAccessToken(envConfig.JWT_SECRET, accessToken);
+    if (!userPayload) {
+      return sendError(res, "Invalid or expired token", null, STATUS_CODES.UNAUTHORIZED);
+    }
+
+    // Optionally, fetch the user from the database for fresh info
+    const user = await UserModel.findById(userPayload.user_id);
+    if (!user) {
+      return sendError(res, "User not found", null, STATUS_CODES.NOT_FOUND);
+    }
+
+    // Build the user_data object as expected by the frontend
+    const user_data = {
+      user_id: user._id.toString(),
+      user_email: user.user_email,
+      user_name: user.user_name,
+      user_avatar:  "" // or provide a default avatar
+    };
+
+    return sendSuccess(res, "User authenticated", { user_data }, STATUS_CODES.OK);
+  });
+
 }
 
 const authentactionController = new AuthenticationController();
