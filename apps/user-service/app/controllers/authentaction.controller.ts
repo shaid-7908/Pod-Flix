@@ -17,15 +17,17 @@ import envConfig from "../config/env.config";
 
 class AuthenticationController {
   registerUser = asyncHandler(async (req: Request, res: Response) => {
+    console.log(req.body)
     const validateRegisterRequest = registerSchema.safeParse(req.body);
     if (!validateRegisterRequest.success) {
       return sendError(
         res,
         "Data validation failed",
         validateRegisterRequest.error.errors,
-        STATUS_CODES.BAD_GATEWAY
+        STATUS_CODES.BAD_REQUEST
       );
     }
+    console.log(validateRegisterRequest.data)
     const {
       user_email,
       user_first_name,
@@ -42,23 +44,6 @@ class AuthenticationController {
         STATUS_CODES.CONFLICT
       );
     }
-    const usernameCheck = await usernameExists(user_name);
-    if (usernameCheck) {
-      return sendError(res, "Username is taken", null, STATUS_CODES.CONFLICT);
-    }
-    const checklockstatus = await isUsernameLocked(user_name);
-    if (!checklockstatus) {
-      return sendError(res, "Username is taken", null, STATUS_CODES.CONFLICT);
-    }
-    const lockusername = await reserveUsernameLock(user_name);
-    if (!lockusername) {
-      return sendError(
-        res,
-        "Try differnet User name",
-        null,
-        STATUS_CODES.CONFLICT
-      );
-    }
     try {
       const hashedPassword = await hashPassword(user_password);
 
@@ -67,6 +52,7 @@ class AuthenticationController {
         user_last_name,
         user_email,
         user_password: hashedPassword,
+        user_profile_picture: req.body.imageUrl,
         user_name,
       });
 
@@ -84,7 +70,7 @@ class AuthenticationController {
         STATUS_CODES.CREATED
       );
     } finally {
-      // 🔓 Always release the lock, no matter what
+      //  Always release the lock, no matter what
       await releaseUsernameLock(user_name);
     }
   });

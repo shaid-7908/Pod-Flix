@@ -184,6 +184,12 @@ importers:
 
   apps/user-service:
     dependencies:
+      '@aws-sdk/client-s3':
+        specifier: ^3.826.0
+        version: 3.826.0
+      '@aws-sdk/lib-storage':
+        specifier: ^3.826.0
+        version: 3.826.0(@aws-sdk/client-s3@3.826.0)
       '@shared/database':
         specifier: workspace:*
         version: link:../../packages/database
@@ -211,6 +217,12 @@ importers:
       morgan:
         specifier: ^1.10.0
         version: 1.10.0
+      multer:
+        specifier: ^2.0.1
+        version: 2.0.1
+      uuid:
+        specifier: ^11.1.0
+        version: 11.1.0
       zod:
         specifier: ^3.25.45
         version: 3.25.45
@@ -224,6 +236,9 @@ importers:
       '@types/morgan':
         specifier: ^1.9.10
         version: 1.9.10
+      '@types/multer':
+        specifier: ^1.4.13
+        version: 1.4.13
       ts-node-dev:
         specifier: ^2.0.0
         version: 2.0.0(@types/node@22.15.29)(typescript@5.8.3)

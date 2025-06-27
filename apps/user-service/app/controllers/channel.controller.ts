@@ -24,6 +24,7 @@ class ChannelController{
           const user_id = req.user?.user_id
           const channel = await ChannelModel.findOne({owner_id:user_id})
           if(!channel){
+            
             return sendError(res,"Channel not found or is not created",null,STATUS_CODES.NOT_FOUND)
           }
           const TotalVideos = await UnprocessedVideoModel.aggregate([
