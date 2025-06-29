@@ -5,6 +5,8 @@ import { channelSchema } from "../validation/channelschema.validation";
 import { sendError, sendSuccess } from "../utils/unified.response";
 import { STATUS_CODES } from "@shared/utils";
 import mongoose from "mongoose";
+import { JwtPayload } from "@shared/types";
+import { ChannelSubscriptionModel } from "@shared/database";
 
 class ChannelController{
     createChannel=asyncHandler(async( req:Request,res:Response)=>{
@@ -71,6 +73,22 @@ class ChannelController{
          return sendSuccess(res,"Channel info",
             overAllDetails,STATUS_CODES.OK)
     })
+
+    getOtherChannelInfoOnVideoCard=asyncHandler(async(req:Request,res:Response)=>{
+      const channel_id = req.params.channelId
+      const user = req.user as JwtPayload
+      const channel = await ChannelModel.findOne({_id:channel_id})
+      const isSubscribed = await ChannelSubscriptionModel.findOne({channel_id:channel_id,user_id:user.user_id})
+      if(!channel){
+        return sendError(res,"Channel not found",null,STATUS_CODES.NOT_FOUND)
+      }
+      const payload_data={
+        channel_info:channel,
+        is_subscribed:isSubscribed ? true : false
+      }
+      return sendSuccess(res,"Channel info",payload_data,STATUS_CODES.OK)
+    })
+    
     
 }
 

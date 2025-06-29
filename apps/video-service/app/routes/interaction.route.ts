@@ -10,7 +10,7 @@ interactionRouter.post('/update-interaction',authMiddleware,interactionControlle
 interactionRouter.get('/getall-likes',interactionController.getLikesOfVideo)
 interactionRouter.post('/add-comment',authMiddleware,interactionController.addComment)
 interactionRouter.post('/reply-comment',authMiddleware,interactionController.addReplyComment)
-interactionRouter.get('/get-comments',authMiddleware,interactionController.getComments)
+interactionRouter.get('/get-comments/:videoId',authMiddleware,interactionController.getComments)
 interactionRouter.delete('/delete-comment',authMiddleware,interactionController.deleteComment)
 
 export default interactionRouter

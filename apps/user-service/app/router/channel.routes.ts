@@ -8,6 +8,6 @@ const channelRouter = express.Router()
 channelRouter.use(authMiddleware)
 channelRouter.post('/create-channel',channelImageUpload,s3ChannelImageUploader,channelController.createChannel)
 channelRouter.get('/get-own-channel-info',channelController.getOwnChannelInfo)
-
+channelRouter.get('/get-other-channel-info-on-video-card/:channelId',channelController.getOtherChannelInfoOnVideoCard)
 export default channelRouter
 

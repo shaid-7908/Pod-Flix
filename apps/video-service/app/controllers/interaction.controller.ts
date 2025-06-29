@@ -57,6 +57,7 @@ class InteractionController{
 
     addComment = asyncHandler(async (req:Request,res:Response)=>{
        const user = req.user as JwtPayload
+       console.log(req.body,'comment check')
        const { video_id, comment_text } = req.body;
        const addedComment = await VideoCommentModel.create({video_id,comment_text,user_id:user.user_id})
        return sendSuccess(res,'Comment added successfully',addedComment,STATUS_CODES.ACCEPTED)
@@ -78,7 +79,7 @@ class InteractionController{
       
     })
     getComments = asyncHandler(async (req:Request,res:Response)=>{
-      const {video_id} = req.body
+      const video_id = req.params.videoId
       const comments = await VideoCommentModel.aggregate([
         { $match: { 
          video_id: new mongoose.Types.ObjectId(video_id), 
@@ -108,7 +109,7 @@ class InteractionController{
             createdAt: 1,
             user: {
               _id: "$user._id",
-              name: "$user.name",
+              user_name: "$user.user_name",
             },
             replyCount: { $size: "$replies" },
           },

@@ -206,6 +206,7 @@ class StreamingController{
             title: 1,
             description: 1,
             channel_id: 1,
+            thumbnail_url:1,
             createdAt: 1,
             'processed_data._id': 1,
             'processed_data.duration': 1,

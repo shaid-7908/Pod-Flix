@@ -18,14 +18,16 @@ class VideoController {
         if(!user_channel){
             return sendError(res,'No channel found',null,STATUS_CODES.BAD_REQUEST)
         }
-        const {title , description,videoUrl } = req.body
+        console.log(req.body,'thumbnail check')
+        const {title , description,videoUrl ,thumbnailUrl } = req.body
 
         const createVideoMetadata = await UnprocessedVideoModel.create({
             title:title,
             description:description,
             org_video_url:videoUrl,
             channel_id:user_channel._id,
-            unique_file_name_key:req.body.uniqueFileNameKey
+            unique_file_name_key:req.body.uniqueFileNameKey,
+            thumbnail_url:thumbnailUrl ?? ""
         })
         const splitedUrl = videoUrl.split('/')
         
@@ -37,7 +39,7 @@ class VideoController {
              's3BucketName':splitedUrl[2].split('.')[0],
 
         }
-        await publishToVideoQueue(dataToSendInVideoQue)
+       await publishToVideoQueue(dataToSendInVideoQue)
         return sendSuccess(res, "Video uploaded and saved successfully", {
           video_id: createVideoMetadata._id,
           title: createVideoMetadata.title,
