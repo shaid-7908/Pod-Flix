@@ -76,7 +76,7 @@ export const stratProcessingVideo = async (msg: Record<string, any>) => {
 
     console.log(`✅ Video metadata saved to DB for video ID: ${videoData._id}`);
   }catch (err: any) {
-    console.error("❌ Failed during processing:", err.message);
+    console.error("❌ Failed during processing:", err);
 
     await ProcessedVideoModel.create({
       video_id: videoData._id,

@@ -64,5 +64,66 @@ const uploadImageToS3 = async (
   }
 };
 
+const uploadChannelImagesToS3 = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const files = req.files as {
+      [fieldname: string]: Express.Multer.File[];
+    };
+
+    if (!files || (!files["profile_image"] && !files["banner_image"])) {
+       res.status(400).json({ message: "No image files uploaded" });
+    }
+
+    const uploadedUrls: { [key: string]: string } = {};
+
+    const uploadSingleFile = async (
+      file: Express.Multer.File,
+      field: "profile_image" | "banner_image"
+    ) => {
+      const fileBuffer = file.buffer;
+      const extension = file.mimetype.split("/")[1];
+      const uniqueFilename = `${uuid()}.${extension}`;
+      const fileKey = `channelimage/${uniqueFilename}`;
+
+      const uploadParams = {
+        Bucket: envConfig.AWS_S3_UPLOAD_BUCKET_NAME!,
+        Key: fileKey,
+        Body: fileBuffer,
+        ContentType: file.mimetype,
+      };
+
+      await s3.send(new PutObjectCommand(uploadParams));
+
+      const fileUrl = `https://${envConfig.AWS_S3_UPLOAD_BUCKET_NAME}.s3.${envConfig.AWS_REGION}.amazonaws.com/${fileKey}`;
+
+      uploadedUrls[field] = fileUrl;
+    };
+
+    if (files["profile_image"]?.[0]) {
+      await uploadSingleFile(files["profile_image"][0], "profile_image");
+    }
+
+    if (files["banner_image"]?.[0]) {
+      await uploadSingleFile(files["banner_image"][0], "banner_image");
+    }
+
+    // Attach URLs to body for controller to use
+    req.body.profile_image = uploadedUrls.profile_image || "";
+    req.body.banner_image = uploadedUrls.banner_image || "";
+
+    next();
+  } catch (error) {
+    console.error("S3 image upload error:", error);
+    res.status(500).json({ message: "Image upload failed", error });
+  }
+};
+
+
 export const imageUpload = upload.single("image");
+export const channelImageUpload = upload.fields([{name:"profile_image",maxCount:1},{name:"banner_image",maxCount:1}])
 export const s3ImageUploader = uploadImageToS3;
+export const s3ChannelImageUploader = uploadChannelImagesToS3;

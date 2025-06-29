@@ -46,7 +46,7 @@ const uploadVideoToS3 = async (
     const fileKey = `videos/${uniquefilename}`;
 
     const uploadParams = {
-      Bucket: envConfig.AWS_S3_BUCKET_NAME!,
+      Bucket: envConfig.AWS_S3_DOWNLOAD_BUCKET_NAME!,
       Key: fileKey,
       Body: fileBuffer,
       ContentType: req.file.mimetype,
@@ -56,7 +56,7 @@ const uploadVideoToS3 = async (
     await s3.send(new PutObjectCommand(uploadParams));
 
     // Attach public S3 URL to req.body
-    req.body.videoUrl = `https://${envConfig.AWS_S3_BUCKET_NAME}.s3.${envConfig.AWS_REGION}.amazonaws.com/${fileKey}`;
+    req.body.videoUrl = `https://${envConfig.AWS_S3_DOWNLOAD_BUCKET_NAME}.s3.${envConfig.AWS_REGION}.amazonaws.com/${fileKey}`;
     req.body.uniqueFileNameKey = uniquefilename.split('.')[0]
     next(); // Pass to next middleware/controller
   } catch (error) {

@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import ffmpeg from "fluent-ffmpeg";
+ffmpeg.setFfmpegPath('C:\\ffmpeg\\ffmpeg-2025-06-26-git-09cd38e9d5-full_build\\bin\\ffmpeg.exe');
 
 // Define input/output directories
 const INPUT_DIR = path.join(__dirname,"..","..", "tmp");

@@ -19,7 +19,10 @@ const envConfig = {
   AWS_ACCESS_KEY: process.env.AWS_ACCESS_KEY as string,
   AWS_SECRET_KEY: process.env.AWS_SECRET_KEY as string,
   AWS_REGION: process.env.AWS_REGION as string,
-  AWS_S3_BUCKET_NAME: process.env.AWS_S3_BUCKET_NAME as string,
+  AWS_SQS_QUEUE_URL: process.env.AWS_SQS_QUEUE_URL as string,
+  AWS_S3_DOWNLOAD_BUCKET_NAME: process.env
+    .AWS_S3_DOWNLOAD_BUCKET_NAME as string,
+  AWS_S3_UPLOAD_BUCKET_NAME: process.env.AWS_S3_UPLOAD_BUCKET_NAME as string,
 };
 
 export default envConfig;

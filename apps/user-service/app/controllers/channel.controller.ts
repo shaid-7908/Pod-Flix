@@ -15,11 +15,12 @@ class ChannelController{
        }
        const {channel_name,channel_description,channel_unique_name} = validateChannelCreationRequest.data
 
-       const createdChannel = await ChannelModel.create({channel_description,channel_name,channel_unique_name,owner_id:req.user?.user_id})
+       const createdChannel = await ChannelModel.create({channel_description,channel_name,channel_unique_name,owner_id:req.user?.user_id ,profile_image:req.body.profile_image,banner_image:req.body.banner_image})
 
        return sendSuccess(res,"Channel created successfully",createdChannel,STATUS_CODES.CREATED)
 
     })
+
     getOwnChannelInfo=asyncHandler(async (req:Request,res:Response)=>{
           const user_id = req.user?.user_id
           const channel = await ChannelModel.findOne({owner_id:user_id})
@@ -50,11 +51,21 @@ class ChannelController{
               $count: "total",
             },
           ]);
-
-          const overAllDetails = {
-            total_videos:TotalVideos[0].total_videos,
+          let overAllDetails ={}
+           if(TotalVideos.length === 0){
+             overAllDetails = {
+            total_videos:0,
+            total_comments:0,
             channel_info:channel
           }
+           }else{
+            overAllDetails = {
+              total_videos:TotalVideos[0].total_videos,
+              total_comments:0,
+              channel_info:channel
+            }
+          }
+          
 
 
          return sendSuccess(res,"Channel info",
@@ -62,5 +73,7 @@ class ChannelController{
     })
     
 }
+
 const channelController = new ChannelController()
+
 export default channelController
