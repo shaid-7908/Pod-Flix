@@ -1,11 +1,13 @@
 import fs from "fs";
 import path from "path";
 import ffmpeg from "fluent-ffmpeg";
-ffmpeg.setFfmpegPath('C:\\ffmpeg\\ffmpeg-2025-06-26-git-09cd38e9d5-full_build\\bin\\ffmpeg.exe');
+ffmpeg.setFfmpegPath(
+  "C:\\ffmpeg\\ffmpeg-2025-06-26-git-09cd38e9d5-full_build\\bin\\ffmpeg.exe"
+);
 
 // Define input/output directories
-const INPUT_DIR = path.join(__dirname,"..","..", "tmp");
-const OUTPUT_DIR = path.join(__dirname,"..","..", "transcoded");
+const INPUT_DIR = path.join(__dirname, "..", "..", "tmp");
+const OUTPUT_DIR = path.join(__dirname, "..", "..", "transcoded");
 
 // HLS variants
 const RESOLUTIONS = [
@@ -16,8 +18,6 @@ const RESOLUTIONS = [
   { label: "720p", resolution: "1280x720", bitrate: "2500k" },
   { label: "1080p", resolution: "1920x1080", bitrate: "5000k" },
 ];
-
-
 
 // Ensure output dir exists
 if (!fs.existsSync(OUTPUT_DIR)) {
