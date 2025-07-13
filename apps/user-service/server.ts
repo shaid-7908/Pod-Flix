@@ -1,27 +1,29 @@
-import express from 'express'
-import {connectDB} from '@shared/database'
-import envConfig from './app/config/env.config'
-import cookieParser from 'cookie-parser'
-import {errorHandler} from './app/middleware/error.handler'
-import authRouter from './app/router/authentaction.routes'
-import channelRouter from './app/router/channel.routes'
-import morgan from 'morgan'
+import express from "express";
+import { connectDB } from "@shared/database";
+import envConfig from "./app/config/env.config";
+import cookieParser from "cookie-parser";
+import { errorHandler } from "./app/middleware/error.handler";
+import authRouter from "./app/router/authentaction.routes";
+import channelRouter from "./app/router/channel.routes";
+import morgan from "morgan";
 
-const app = express()
-app.use(express.json({limit: '50mb'}))
-app.use(morgan('dev'))
+const app = express();
+app.use(express.json({ limit: "50mb" }));
+app.use(morgan("dev"));
 app.use(cookieParser());
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-app.use('/api/v1/',authRouter)
-app.use('/api/v1/',channelRouter)
+app.use("/api/v1/", authRouter);
+app.use("/api/v1/", channelRouter);
 
-app.use(errorHandler)
+app.use(errorHandler);
 const startServer = async () => {
   try {
-    await connectDB(envConfig.MONGODB_URL,envConfig.MONGODB_DB_NAME); // Connect to MongoDB
+    await connectDB(envConfig.MONGODB_URL, envConfig.MONGODB_DB_NAME); // Connect to MongoDB
     app.listen(envConfig.PORT, () => {
-      console.log(`✅ user-service running on http://localhost:${envConfig.PORT}`);
+      console.log(
+        `✅ user-service running on http://localhost:${envConfig.PORT}`
+      );
     });
   } catch (err) {
     console.error("❌ Failed to connect to DB. Server not started.", err);
